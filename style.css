@@ -1,0 +1,488 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap');
+
+/* =========================
+   CSS Variables
+========================= */
+:root {
+    --glass-bg: rgba(255, 255, 255, 0.08);
+    --glass-border: rgba(255, 255, 255, 0.18);
+    --glass-shadow: rgba(0, 0, 0, 0.4);
+    --glass-highlight: rgba(255, 255, 255, 0.25);
+    --accent: #a78bfa;
+    --accent2: #38bdf8;
+    --accent3: #f472b6;
+    --text: #f0f4ff;
+    --text-muted: rgba(240, 244, 255, 0.55);
+}
+
+/* =========================
+   Reset & Base
+========================= */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    min-height: 100vh;
+    font-family: 'Outfit', sans-serif;
+    color: var(--text);
+    overflow-x: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #0a0a1a;
+}
+
+/* =========================
+   Animated Background
+========================= */
+.bg-scene {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+}
+
+.bg-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.55;
+    animation: floatOrb 12s ease-in-out infinite alternate;
+}
+
+.bg-orb:nth-child(1) {
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, #6d28d9, transparent 70%);
+    top: -100px; left: -100px;
+    animation-duration: 14s;
+}
+.bg-orb:nth-child(2) {
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, #0ea5e9, transparent 70%);
+    top: 40%; right: -80px;
+    animation-duration: 10s;
+    animation-delay: -4s;
+}
+.bg-orb:nth-child(3) {
+    width: 350px; height: 350px;
+    background: radial-gradient(circle, #db2777, transparent 70%);
+    bottom: -80px; left: 35%;
+    animation-duration: 16s;
+    animation-delay: -8s;
+}
+.bg-orb:nth-child(4) {
+    width: 280px; height: 280px;
+    background: radial-gradient(circle, #059669, transparent 70%);
+    top: 20%; left: 60%;
+    animation-duration: 11s;
+    animation-delay: -2s;
+}
+
+@keyframes floatOrb {
+    0%   { transform: translate(0, 0) scale(1); }
+    50%  { transform: translate(40px, -40px) scale(1.08); }
+    100% { transform: translate(-30px, 30px) scale(0.95); }
+}
+
+/* Noise grain texture */
+.bg-scene::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    opacity: 0.4;
+}
+
+/* =========================
+   Layout
+========================= */
+.game-container {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 520px;
+    padding: 28px 24px 32px;
+    border-radius: 28px;
+    background: var(--glass-bg);
+    backdrop-filter: blur(28px) saturate(180%);
+    -webkit-backdrop-filter: blur(28px) saturate(180%);
+    border: 1px solid var(--glass-border);
+    box-shadow:
+        0 8px 64px var(--glass-shadow),
+        inset 0 1px 0 var(--glass-highlight),
+        inset 0 -1px 0 rgba(0,0,0,0.2);
+    animation: containerFadeIn 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes containerFadeIn {
+    from { opacity: 0; transform: translateY(30px) scale(0.97); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* =========================
+   Header
+========================= */
+.game-header {
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.game-header h1 {
+    font-size: 1.9rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    background: linear-gradient(135deg, #e0d7ff 0%, var(--accent2) 50%, var(--accent3) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 14px;
+    text-shadow: none;
+}
+
+/* =========================
+   Stats
+========================= */
+.stats {
+    display: flex;
+    justify-content: center;
+    gap: 14px;
+    margin-bottom: 16px;
+}
+
+.stat-pill {
+    padding: 6px 18px;
+    border-radius: 99px;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.12);
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    letter-spacing: 0.3px;
+    backdrop-filter: blur(10px);
+    transition: background 0.3s;
+}
+
+.stat-pill span {
+    color: var(--text);
+    font-weight: 700;
+}
+
+/* =========================
+   Button
+========================= */
+button {
+    padding: 10px 22px;
+    border: 1px solid rgba(167, 139, 250, 0.4);
+    border-radius: 99px;
+    background: rgba(167, 139, 250, 0.15);
+    backdrop-filter: blur(12px);
+    color: #d8b4fe;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    font-size: 0.9rem;
+    letter-spacing: 0.3px;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s, transform 0.15s, box-shadow 0.2s;
+    box-shadow: 0 2px 16px rgba(167,139,250,0.15), inset 0 1px 0 rgba(255,255,255,0.1);
+}
+
+button:hover {
+    background: rgba(167, 139, 250, 0.28);
+    border-color: rgba(167, 139, 250, 0.7);
+    box-shadow: 0 4px 24px rgba(167,139,250,0.3), inset 0 1px 0 rgba(255,255,255,0.15);
+}
+
+button:active {
+    transform: scale(0.96);
+}
+
+/* =========================
+   Game Board
+========================= */
+.game-board {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    perspective: 1200px;
+}
+
+/* =========================
+   Cards — Liquid Glass
+========================= */
+.card {
+    position: relative;
+    width: 100%;
+    padding-top: 100%;
+    cursor: pointer;
+}
+
+.card-inner {
+    position: absolute;
+    inset: 0;
+    transition: transform 0.65s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-style: preserve-3d;
+}
+
+.card.flipped .card-inner,
+.card.matched .card-inner {
+    transform: rotateY(180deg);
+}
+
+.card-face {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.8rem;
+    border-radius: 16px;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    overflow: hidden;
+}
+
+/* Front — liquid glass */
+.card-front {
+    background: linear-gradient(
+        135deg,
+        rgba(255,255,255,0.14) 0%,
+        rgba(255,255,255,0.05) 50%,
+        rgba(255,255,255,0.10) 100%
+    );
+    border: 1px solid rgba(255,255,255,0.2);
+    box-shadow:
+        0 4px 24px rgba(0,0,0,0.3),
+        inset 0 1px 0 rgba(255,255,255,0.3),
+        inset 0 -1px 0 rgba(0,0,0,0.15);
+    backdrop-filter: blur(20px) saturate(150%);
+    -webkit-backdrop-filter: blur(20px) saturate(150%);
+}
+
+/* Liquid shimmer line on card-front */
+.card-front::before {
+    content: '';
+    position: absolute;
+    top: 6%;
+    left: 10%;
+    width: 55%;
+    height: 28%;
+    background: linear-gradient(
+        120deg,
+        rgba(255,255,255,0.22) 0%,
+        rgba(255,255,255,0.04) 100%
+    );
+    border-radius: 50%;
+    filter: blur(4px);
+    pointer-events: none;
+}
+
+/* Back — glowing icon face */
+.card-back {
+    transform: rotateY(180deg);
+    background: linear-gradient(
+        135deg,
+        rgba(255,255,255,0.12) 0%,
+        rgba(255,255,255,0.04) 60%,
+        rgba(255,255,255,0.09) 100%
+    );
+    border: 1px solid rgba(255,255,255,0.25);
+    box-shadow:
+        0 4px 24px rgba(0,0,0,0.35),
+        inset 0 1px 0 rgba(255,255,255,0.35),
+        inset 0 -1px 0 rgba(0,0,0,0.1);
+    backdrop-filter: blur(20px) saturate(150%);
+    -webkit-backdrop-filter: blur(20px) saturate(150%);
+}
+
+.card-back::before {
+    content: '';
+    position: absolute;
+    top: 6%;
+    left: 10%;
+    width: 55%;
+    height: 28%;
+    background: linear-gradient(
+        120deg,
+        rgba(255,255,255,0.22) 0%,
+        rgba(255,255,255,0.04) 100%
+    );
+    border-radius: 50%;
+    filter: blur(4px);
+    pointer-events: none;
+}
+
+.card-back i {
+    position: relative;
+    z-index: 1;
+    background: linear-gradient(135deg, #c4b5fd, #67e8f9, #f9a8d4);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 0 8px rgba(167, 139, 250, 0.6));
+    font-size: 2rem;
+}
+
+/* Hover state */
+.card:not(.flipped):not(.matched):hover .card-front {
+    background: linear-gradient(
+        135deg,
+        rgba(255,255,255,0.22) 0%,
+        rgba(255,255,255,0.10) 50%,
+        rgba(255,255,255,0.16) 100%
+    );
+    border-color: rgba(255,255,255,0.35);
+    box-shadow:
+        0 8px 32px rgba(167,139,250,0.25),
+        inset 0 1px 0 rgba(255,255,255,0.4),
+        inset 0 -1px 0 rgba(0,0,0,0.1);
+    transform: translateY(-2px);
+}
+
+.card:not(.flipped):not(.matched):hover .card-inner {
+    transition: transform 0.65s cubic-bezier(0.4,0,0.2,1), box-shadow 0.2s;
+}
+
+/* Matched glow */
+.card.matched .card-back {
+    border-color: rgba(167, 250, 200, 0.5);
+    box-shadow:
+        0 0 20px rgba(110, 231, 183, 0.35),
+        0 4px 24px rgba(0,0,0,0.25),
+        inset 0 1px 0 rgba(255,255,255,0.3);
+}
+
+.card.matched .card-back i {
+    background: linear-gradient(135deg, #6ee7b7, #67e8f9, #a5f3fc);
+    -webkit-background-clip: text;
+    background-clip: text;
+    filter: drop-shadow(0 0 10px rgba(110, 231, 183, 0.7));
+    animation: matchPulse 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes matchPulse {
+    0%   { transform: scale(0.8); opacity: 0.5; }
+    60%  { transform: scale(1.2); }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.card.disabled {
+    pointer-events: none;
+}
+
+/* =========================
+   Win Overlay — Liquid Glass
+========================= */
+.win-overlay {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+    z-index: 100;
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
+    transition: opacity 0.4s, backdrop-filter 0.4s;
+}
+
+.win-overlay.show {
+    opacity: 1;
+    pointer-events: all;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    background: rgba(0,0,0,0.5);
+}
+
+.win-message {
+    position: relative;
+    background: linear-gradient(
+        135deg,
+        rgba(255,255,255,0.14) 0%,
+        rgba(255,255,255,0.06) 100%
+    );
+    border: 1px solid rgba(255,255,255,0.22);
+    box-shadow:
+        0 24px 80px rgba(0,0,0,0.5),
+        inset 0 1px 0 rgba(255,255,255,0.3),
+        inset 0 -1px 0 rgba(0,0,0,0.15);
+    backdrop-filter: blur(32px) saturate(160%);
+    -webkit-backdrop-filter: blur(32px) saturate(160%);
+    padding: 40px 48px;
+    border-radius: 24px;
+    text-align: center;
+    overflow: hidden;
+    animation: winPop 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.win-message::before {
+    content: '';
+    position: absolute;
+    top: 6%;
+    left: 8%;
+    width: 50%;
+    height: 25%;
+    background: linear-gradient(120deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.03) 100%);
+    border-radius: 50%;
+    filter: blur(6px);
+    pointer-events: none;
+}
+
+@keyframes winPop {
+    from { opacity: 0; transform: scale(0.85) translateY(20px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.win-message h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+    background: linear-gradient(135deg, #e0d7ff, #a78bfa, #f472b6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.win-message p {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    margin-bottom: 6px;
+    font-weight: 400;
+}
+
+.win-message p span {
+    color: var(--text);
+    font-weight: 600;
+}
+
+.win-message button {
+    margin-top: 22px;
+}
+
+/* =========================
+   Responsive
+========================= */
+@media (max-width: 480px) {
+    .game-container {
+        padding: 20px 16px 24px;
+        border-radius: 20px;
+        margin: 16px;
+    }
+
+    .game-board {
+        gap: 9px;
+    }
+
+    .card-back i, .card-face {
+        font-size: 1.4rem;
+    }
+
+    .game-header h1 {
+        font-size: 1.5rem;
+    }
+}
