@@ -27,11 +27,39 @@
         <div class="bg-orb"></div>
     </div>
 
+    <!-- Intro Overlay -->
+    <div class="intro-overlay" id="introOverlay">
+        <canvas id="introCanvas"></canvas>
+        <div class="intro-content">
+            <div class="intro-logo">
+                <span class="intro-symbol">✦</span>
+                <h1 class="intro-title">
+                    <span class="intro-letter" style="--i:0">M</span><span class="intro-letter" style="--i:1">e</span><span class="intro-letter" style="--i:2">m</span><span class="intro-letter" style="--i:3">o</span><span class="intro-letter" style="--i:4">r</span><span class="intro-letter" style="--i:5">y</span>
+                </h1>
+                <h2 class="intro-subtitle">
+                    <span class="intro-letter sub" style="--i:6">G</span><span class="intro-letter sub" style="--i:7">a</span><span class="intro-letter sub" style="--i:8">m</span><span class="intro-letter sub" style="--i:9">e</span>
+                </h2>
+            </div>
+            <div class="intro-cards-preview">
+                <div class="preview-card pc1"><i class="fa-solid fa-star"></i></div>
+                <div class="preview-card pc2"><i class="fa-solid fa-heart"></i></div>
+                <div class="preview-card pc3"><i class="fa-solid fa-gem"></i></div>
+                <div class="preview-card pc4"><i class="fa-solid fa-bolt"></i></div>
+                <div class="preview-card pc5"><i class="fa-solid fa-moon"></i></div>
+            </div>
+            <p class="intro-tagline">Match the pairs. Beat your time.</p>
+            <button class="intro-play-btn" id="introPlayBtn">
+                <span class="btn-glow"></span>
+                <i class="fa-solid fa-play"></i>
+                <span>Play Now</span>
+            </button>
+            <p class="intro-byline">By: jamUpstream</p>
+        </div>
+    </div>
+
     <div class="game-container">
         <header class="game-header">
             <h1>✦ Memory Game</h1>
-            <p>By: jamUpstream</p>
-            <br>
 
             <div class="stats">
                 <div class="stat-pill">Moves: <span id="moves">0</span></div>

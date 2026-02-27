@@ -516,3 +516,248 @@ button:active {
         font-size: 1.5rem;
     }
 }
+
+/* =========================
+   Intro Overlay
+========================= */
+.intro-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #06061a;
+    transition: opacity 0.7s cubic-bezier(0.4, 0, 0.2, 1), transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.intro-overlay.fade-out {
+    opacity: 0;
+    transform: scale(1.04);
+    pointer-events: none;
+}
+
+.intro-overlay.hidden {
+    display: none;
+}
+
+#introCanvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.intro-content {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+}
+
+/* Logo block */
+.intro-logo {
+    margin-bottom: 32px;
+}
+
+.intro-symbol {
+    display: block;
+    font-size: 2.5rem;
+    opacity: 0;
+    transform: translateY(-20px) scale(0.5) rotate(-30deg);
+    animation: introSymbol 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.3s forwards;
+    background: linear-gradient(135deg, #a78bfa, #38bdf8, #f472b6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 0 16px rgba(167, 139, 250, 0.8));
+    margin-bottom: 8px;
+}
+
+@keyframes introSymbol {
+    to { opacity: 1; transform: translateY(0) scale(1) rotate(0deg); }
+}
+
+.intro-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: clamp(3rem, 10vw, 5.5rem);
+    font-weight: 700;
+    letter-spacing: -2px;
+    line-height: 1;
+    background: linear-gradient(135deg, #e0d7ff 0%, #a78bfa 40%, #67e8f9 80%, #f9a8d4 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    display: flex;
+    gap: 2px;
+    margin-bottom: 4px;
+}
+
+.intro-subtitle {
+    font-family: 'Outfit', sans-serif;
+    font-size: clamp(1.4rem, 4vw, 2.2rem);
+    font-weight: 300;
+    letter-spacing: 8px;
+    text-transform: uppercase;
+    color: rgba(167, 139, 250, 0.7);
+    display: flex;
+    gap: 1px;
+    justify-content: center;
+}
+
+.intro-letter {
+    display: inline-block;
+    opacity: 0;
+    transform: translateY(40px) rotateX(60deg);
+    animation: introLetter 0.6s cubic-bezier(0.22, 1, 0.36, 1) calc(0.5s + var(--i) * 0.06s) forwards;
+}
+
+.intro-letter.sub {
+    transform: translateY(20px);
+    animation: introLetterSub 0.5s cubic-bezier(0.22, 1, 0.36, 1) calc(0.9s + var(--i) * 0.055s) forwards;
+}
+
+@keyframes introLetter {
+    to { opacity: 1; transform: translateY(0) rotateX(0deg); }
+}
+@keyframes introLetterSub {
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Preview cards fan */
+.intro-cards-preview {
+    position: relative;
+    width: 280px;
+    height: 90px;
+    margin: 0 auto 28px;
+    opacity: 0;
+    animation: introCardsIn 0.7s cubic-bezier(0.22, 1, 0.36, 1) 1.3s forwards;
+}
+
+@keyframes introCardsIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.preview-card {
+    position: absolute;
+    width: 52px;
+    height: 52px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    background: linear-gradient(135deg, rgba(255,255,255,0.12), rgba(255,255,255,0.04));
+    border: 1px solid rgba(255,255,255,0.22);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.2);
+    backdrop-filter: blur(12px);
+    top: 50%;
+    left: 50%;
+    transform-origin: center 120%;
+    animation: cardFloat 3s ease-in-out infinite;
+}
+
+.preview-card i {
+    background: linear-gradient(135deg, #c4b5fd, #67e8f9, #f9a8d4);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 0 6px rgba(167,139,250,0.7));
+}
+
+.pc1 { transform: translate(-50%, -50%) translateX(-96px) rotate(-20deg); animation-delay: 0s; }
+.pc2 { transform: translate(-50%, -50%) translateX(-48px) rotate(-8deg);  animation-delay: 0.2s; }
+.pc3 { transform: translate(-50%, -50%) translateX(0px)   rotate(0deg);   animation-delay: 0.4s; z-index:2; }
+.pc4 { transform: translate(-50%, -50%) translateX(48px)  rotate(8deg);   animation-delay: 0.1s; }
+.pc5 { transform: translate(-50%, -50%) translateX(96px)  rotate(20deg);  animation-delay: 0.3s; }
+
+@keyframes cardFloat {
+    0%, 100% { margin-top: 0; }
+    50%       { margin-top: -6px; }
+}
+
+/* Tagline */
+.intro-tagline {
+    font-size: 0.9rem;
+    font-weight: 400;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(240, 244, 255, 0.4);
+    margin-bottom: 36px;
+    opacity: 0;
+    animation: introFadeUp 0.6s ease 1.6s forwards;
+}
+
+@keyframes introFadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Play button */
+.intro-play-btn {
+    position: relative;
+    padding: 16px 48px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    border: 1px solid rgba(167, 139, 250, 0.5);
+    border-radius: 99px;
+    background: rgba(167, 139, 250, 0.18);
+    color: #e9d5ff;
+    cursor: pointer;
+    overflow: hidden;
+    opacity: 0;
+    animation: introFadeUp 0.6s ease 1.85s forwards;
+    transition: transform 0.2s, box-shadow 0.3s, background 0.3s, border-color 0.3s;
+    box-shadow: 0 0 0 rgba(167,139,250,0);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.btn-glow {
+    position: absolute;
+    inset: -2px;
+    border-radius: 99px;
+    background: conic-gradient(from 0deg, #a78bfa, #38bdf8, #f472b6, #a78bfa);
+    opacity: 0;
+    filter: blur(8px);
+    z-index: -1;
+    transition: opacity 0.3s;
+    animation: rotateConic 3s linear infinite;
+}
+
+@keyframes rotateConic {
+    to { transform: rotate(360deg); }
+}
+
+.intro-play-btn:hover {
+    transform: scale(1.04) translateY(-2px);
+    background: rgba(167, 139, 250, 0.3);
+    border-color: rgba(167, 139, 250, 0.8);
+    box-shadow: 0 8px 40px rgba(167, 139, 250, 0.4), 0 0 0 1px rgba(167,139,250,0.3);
+}
+
+.intro-play-btn:hover .btn-glow {
+    opacity: 0.35;
+}
+
+.intro-play-btn:active {
+    transform: scale(0.97);
+}
+
+/* Byline */
+.intro-byline {
+    margin-top: 20px;
+    font-size: 0.75rem;
+    color: rgba(240, 244, 255, 0.25);
+    letter-spacing: 1px;
+    opacity: 0;
+    animation: introFadeUp 0.5s ease 2.1s forwards;
+}

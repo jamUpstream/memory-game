@@ -19,7 +19,7 @@ const AudioEngine = (() => {
             sfxGain.connect(ctx.destination);
             // Master music gain
             musicGain = ctx.createGain();
-            musicGain.gain.value = 0.18;
+            musicGain.gain.value = 0.04;
             musicGain.connect(ctx.destination);
         }
         if (ctx.state === 'suspended') ctx.resume();
@@ -100,61 +100,68 @@ const AudioEngine = (() => {
     };
 
     // ---- Ambient Background Music ----
-    // A gentle procedural pad: slow chord arpeggios
-    const chordSets = [
-        [261.63, 329.63, 392.00, 493.88],  // C maj7
-        [293.66, 369.99, 440.00, 554.37],  // D min7
-        [349.23, 440.00, 523.25, 659.25],  // F maj7
-        [329.63, 415.30, 493.88, 622.25],  // E min7
+    // Slow-evolving drone pads: two detuned sine layers per note,
+    // long fade-in/out so they blur into a seamless wash.
+    // Chords drift C maj9 → A min9 → F maj9 → G sus4 in a lazy loop.
+    const ambientChords = [
+        [130.81, 164.81, 196.00, 246.94, 293.66],  // C maj9  (C E G B D)
+        [110.00, 146.83, 174.61, 220.00, 261.63],  // A min9  (A C E G C)
+        [174.61, 220.00, 261.63, 329.63, 392.00],  // F maj9  (F A C E G)
+        [146.83, 196.00, 246.94, 293.66, 349.23],  // G sus4  (G D G C F)
     ];
 
-    function playMusicNote(freq, delay, duration) {
+    const PAD_DURATION   = 14;   // seconds each chord pad sustains
+    const PAD_FADE_IN    = 3.5;  // seconds to fade in
+    const PAD_FADE_OUT   = 3.5;  // seconds to fade out
+    const CHORD_INTERVAL = 10;   // seconds between chord changes (overlap for smooth crossfade)
+
+    let musicLoop    = null;
+    let chordIndex   = 0;
+
+    function spawnPad(chordFreqs, startDelay) {
         if (musicMuted) return;
         const c = getCtx();
-        const osc1 = c.createOscillator();
-        const osc2 = c.createOscillator();
-        const gain = c.createGain();
-        osc1.type = 'sine';
-        osc2.type = 'triangle';
-        osc1.frequency.value = freq;
-        osc2.frequency.value = freq * 2;
-        osc2.detune.value = 5;
-        gain.gain.setValueAtTime(0, c.currentTime + delay);
-        gain.gain.linearRampToValueAtTime(0.5, c.currentTime + delay + 0.3);
-        gain.gain.setValueAtTime(0.5, c.currentTime + delay + duration - 0.4);
-        gain.gain.linearRampToValueAtTime(0, c.currentTime + delay + duration);
-        osc1.connect(gain);
-        osc2.connect(gain);
-        gain.connect(musicGain);
-        osc1.start(c.currentTime + delay);
-        osc1.stop(c.currentTime + delay + duration + 0.1);
-        osc2.start(c.currentTime + delay);
-        osc2.stop(c.currentTime + delay + duration + 0.1);
-        musicNodes.push(osc1, osc2, gain);
+
+        chordFreqs.forEach((freq, i) => {
+            // Two slightly detuned oscillators per note for a warm, wide pad
+            [-4, 4].forEach(detuneCents => {
+                const osc  = c.createOscillator();
+                const gain = c.createGain();
+
+                osc.type = 'sine';
+                osc.frequency.value = freq;
+                osc.detune.value    = detuneCents;
+
+                // Stagger note start slightly so the chord blooms in
+                const noteDelay = startDelay + i * 0.18;
+                const vol       = 0.12 - i * 0.015; // higher notes a touch quieter
+
+                gain.gain.setValueAtTime(0, c.currentTime + noteDelay);
+                gain.gain.linearRampToValueAtTime(vol, c.currentTime + noteDelay + PAD_FADE_IN);
+                gain.gain.setValueAtTime(vol, c.currentTime + noteDelay + PAD_DURATION - PAD_FADE_OUT);
+                gain.gain.linearRampToValueAtTime(0, c.currentTime + noteDelay + PAD_DURATION);
+
+                osc.connect(gain);
+                gain.connect(musicGain);
+                osc.start(c.currentTime + noteDelay);
+                osc.stop(c.currentTime + noteDelay + PAD_DURATION + 0.2);
+                musicNodes.push(osc, gain);
+            });
+        });
     }
 
-    let musicLoop = null;
-    let chordIndex = 0;
-    let noteIndex = 0;
-    const NOTE_INTERVAL = 0.55; // seconds between notes
-    const CHORD_NOTES = 4;
-
-    function scheduleMusicBeat() {
+    function scheduleNextChord() {
         if (musicMuted) return;
-        const chord = chordSets[chordIndex % chordSets.length];
-        const note = chord[noteIndex % CHORD_NOTES];
-        const baseDuration = NOTE_INTERVAL * CHORD_NOTES;
-        playMusicNote(note, 0, baseDuration * 1.2);
-        noteIndex++;
-        if (noteIndex % CHORD_NOTES === 0) chordIndex++;
-        musicLoop = setTimeout(scheduleMusicBeat, NOTE_INTERVAL * 1000);
+        spawnPad(ambientChords[chordIndex % ambientChords.length], 0);
+        chordIndex++;
+        musicLoop = setTimeout(scheduleNextChord, CHORD_INTERVAL * 1000);
     }
 
     function startMusic() {
         if (musicStarted) return;
         musicStarted = true;
         getCtx();
-        scheduleMusicBeat();
+        scheduleNextChord();
     }
 
     function stopMusic() {
@@ -175,7 +182,7 @@ const AudioEngine = (() => {
         if (musicMuted) {
             musicGain && (musicGain.gain.value = 0);
         } else {
-            musicGain && (musicGain.gain.value = 0.18);
+            musicGain && (musicGain.gain.value = 0.04);
             if (!musicStarted) startMusic();
         }
         return musicMuted;
@@ -460,3 +467,142 @@ document.head.appendChild(styleSheet);
    Initialize Game
 ========================= */
 createBoard();
+
+/* =========================
+   Intro Animation & Particle Canvas
+========================= */
+(function() {
+    const overlay = document.getElementById('introOverlay');
+    const playBtn = document.getElementById('introPlayBtn');
+    const canvas  = document.getElementById('introCanvas');
+    const ctx     = canvas.getContext('2d');
+
+    // Resize canvas
+    function resize() {
+        canvas.width  = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    // Particles
+    const particles = [];
+    const PARTICLE_COUNT = 90;
+
+    const COLORS = ['#a78bfa', '#38bdf8', '#f472b6', '#6ee7b7', '#fbbf24'];
+
+    for (let i = 0; i < PARTICLE_COUNT; i++) {
+        particles.push({
+            x: Math.random() * window.innerWidth,
+            y: Math.random() * window.innerHeight,
+            r: Math.random() * 2.2 + 0.4,
+            color: COLORS[Math.floor(Math.random() * COLORS.length)],
+            vx: (Math.random() - 0.5) * 0.35,
+            vy: (Math.random() - 0.5) * 0.35,
+            alpha: Math.random() * 0.6 + 0.2,
+            pulse: Math.random() * Math.PI * 2,
+            pulseSpeed: 0.015 + Math.random() * 0.02,
+        });
+    }
+
+    // Shooting stars
+    const stars = [];
+    function spawnStar() {
+        stars.push({
+            x: Math.random() * window.innerWidth,
+            y: Math.random() * window.innerHeight * 0.5,
+            len: 80 + Math.random() * 120,
+            speed: 6 + Math.random() * 8,
+            angle: Math.PI / 5 + (Math.random() - 0.5) * 0.3,
+            alpha: 1,
+            color: COLORS[Math.floor(Math.random() * COLORS.length)],
+        });
+    }
+    spawnStar();
+    setInterval(spawnStar, 2200);
+
+    let rafId;
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Draw connecting lines between nearby particles
+        for (let i = 0; i < particles.length; i++) {
+            for (let j = i + 1; j < particles.length; j++) {
+                const dx = particles[i].x - particles[j].x;
+                const dy = particles[i].y - particles[j].y;
+                const dist = Math.sqrt(dx*dx + dy*dy);
+                if (dist < 100) {
+                    ctx.beginPath();
+                    ctx.strokeStyle = `rgba(167,139,250,${0.06 * (1 - dist/100)})`;
+                    ctx.lineWidth = 0.5;
+                    ctx.moveTo(particles[i].x, particles[i].y);
+                    ctx.lineTo(particles[j].x, particles[j].y);
+                    ctx.stroke();
+                }
+            }
+        }
+
+        // Particles
+        particles.forEach(p => {
+            p.pulse += p.pulseSpeed;
+            const alpha = p.alpha * (0.7 + 0.3 * Math.sin(p.pulse));
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+            ctx.fillStyle = p.color.replace(')', `,${alpha})`).replace('rgb', 'rgba').replace('#', '');
+            // simpler hex fill
+            ctx.globalAlpha = alpha;
+            ctx.fillStyle = p.color;
+            ctx.fill();
+            ctx.globalAlpha = 1;
+            p.x += p.vx;
+            p.y += p.vy;
+            if (p.x < 0) p.x = canvas.width;
+            if (p.x > canvas.width) p.x = 0;
+            if (p.y < 0) p.y = canvas.height;
+            if (p.y > canvas.height) p.y = 0;
+        });
+
+        // Shooting stars
+        for (let i = stars.length - 1; i >= 0; i--) {
+            const s = stars[i];
+            const tx = Math.cos(s.angle) * s.len;
+            const ty = Math.sin(s.angle) * s.len;
+            const grad = ctx.createLinearGradient(s.x, s.y, s.x + tx, s.y + ty);
+            grad.addColorStop(0, `rgba(255,255,255,0)`);
+            grad.addColorStop(1, s.color + 'cc');
+            ctx.beginPath();
+            ctx.moveTo(s.x, s.y);
+            ctx.lineTo(s.x + tx, s.y + ty);
+            ctx.strokeStyle = grad;
+            ctx.lineWidth = 1.5;
+            ctx.globalAlpha = s.alpha;
+            ctx.stroke();
+            ctx.globalAlpha = 1;
+            s.x += Math.cos(s.angle) * s.speed;
+            s.y += Math.sin(s.angle) * s.speed;
+            s.alpha -= 0.012;
+            if (s.alpha <= 0) stars.splice(i, 1);
+        }
+
+        rafId = requestAnimationFrame(draw);
+    }
+    draw();
+
+    // Dismiss intro
+    function dismissIntro() {
+        overlay.classList.add('fade-out');
+        setTimeout(() => {
+            overlay.classList.add('hidden');
+            cancelAnimationFrame(rafId);
+        }, 750);
+    }
+
+    playBtn.addEventListener('click', dismissIntro);
+
+    // Also allow pressing Enter/Space
+    document.addEventListener('keydown', e => {
+        if (!overlay.classList.contains('hidden') && (e.key === 'Enter' || e.key === ' ')) {
+            dismissIntro();
+        }
+    });
+})();
